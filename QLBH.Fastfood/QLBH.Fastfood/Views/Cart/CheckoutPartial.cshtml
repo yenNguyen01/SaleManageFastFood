@@ -1,0 +1,70 @@
+﻿@{
+    List<QLBH.Fastfood.Models.GioHang> Cart = Session["Cart"] as List<QLBH.Fastfood.Models.GioHang>;
+    QLBH.Fastfood.Models.TaiKhoan User = Session["User"] as QLBH.Fastfood.Models.TaiKhoan;
+
+}
+@if (Cart.Count > 0)
+{
+    <h3 class="wow fadeInUp animated" data-wow-delay=".5s">Giỏ Hàng Của Bạn Có: @ViewBag.TotalQuantity Sản Phẩm</h3>
+    foreach (var item in Cart)
+    {
+        <div class="cart-header wow fadeInUp animated" data-wow-delay=".5s">
+            <div style="text-align:right">
+                <button class="btn btn-group btnEdit" value="@item.MaSP">
+                    <i class="fa fa-pencil"></i>
+                </button>
+                <button class="btn btn-danger btnDelete" value="@item.MaSP">
+                    <i class="fa fa-close"></i>
+                </button>
+            </div>
+            <div class="cart-sec simpleCart_shelfItem">
+                <div class="cart-item cyc">
+                    <a href="single.html"><img src="@Url.Content("~/Content/home/img/gallery/"+ item.Anh)" class="img-responsive" alt=""></a>
+                </div>
+                <div class="cart-item-info">
+                    <ul class="qty">
+                        <li><p>Số lượng:@item.SoLuong</p></li>
+                        <li><p>Đơn giá: @item.GiaTien.ToString("#,##")₫</p></li>
+                        <li><p>Thành tiền: @item.TongCong.ToString("#,##")₫</p></li>
+                    </ul>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+        </div>
+    }
+    if (Session["User"] == null)
+    {
+        <div class="title-info wow fadeInUp animated" data-wow-delay=".5s">
+            <h3 class="title"><a href=@Url.Action("SignIn", "Home")>Đăng nhập để đặt hàng</a></h3>
+        </div>
+    }
+    else
+    {
+        <div class="login-page">
+            <div class="title-info wow fadeInUp animated" data-wow-delay=".5s">
+                <h3 class="title">Thông Tin Đặt Hàng</h3>
+            </div>
+            <div class="widget-shadow">
+                <div class="login-body wow fadeInUp animated" data-wow-delay=".7s">
+                    @using (Html.BeginForm("AddOrder", "Cart", FormMethod.Post))
+                    {
+                        <label>Họ tên</label>
+                        <input type="text" class="user" name="FullName" value="@User.HoTen" readonly>
+                        <label>Số điện thoại</label>
+                        <input type="text" name="PhoneNumber" class="user" value="@User.SDT" readonly>
+                        <label>Email</label>
+                        <input type="text" name="Email" class="user" value="@User.Email" readonly>
+                        <label>Địa chỉ nhận hàng</label>
+                        <input type="text" name="Address" class="user" value="@User.DiaChi" readonly>
+                        <input type="submit" name="Sign In" value="Tiến Hành Đặt Hàng">
+                    }
+                </div>
+            </div>
+        </div>
+    }
+}
+else
+{
+    <h3 class="wow fadeInUp animated" data-wow-delay=".5s">Giỏ Hàng Của Bạn Hiện Đang Trống</h3>
+}
+

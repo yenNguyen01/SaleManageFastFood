@@ -1,0 +1,396 @@
+﻿@using QLBH.Fastfood.Models
+@model SanPham
+
+@{
+    ViewBag.Title = Model.TenSP;
+    Layout = "~/Views/Layout/HomeLayout.cshtml";
+}
+
+@{ IEnumerable<SanPham> products = ViewBag.ListProduct as IEnumerable<SanPham>;
+    IEnumerable<DanhGia> ratings = ViewBag.ListRating as IEnumerable<DanhGia>;
+    TaiKhoan user = Session["User"] as TaiKhoan;
+    int counter = 1; }
+<script src="~/Scripts/bootbox.js"></script>
+<script>
+    $(document).ready(function () {
+        $('#Textarea1').change(function () {
+            $('#content').val($(this).val());
+        });
+        $('#Textarea2').change(function () {
+            $('#content2').val($(this).val());
+        });
+        $(".btnPost").on("click", function () {
+            $("#Textarea1").val("");
+            $("#Textarea2").val("");
+        });
+        $('.AddItemCart').click(function (e) {
+            var id = $(this).attr("data-id");
+            $.ajax({
+                method: "POST",
+                url: "/Cart/CheckQuantityAdd",
+                data: {
+                    id: id
+                },
+                dataType: 'json',
+                success: function (response) {
+                    if (response.status == true) {
+                        $.ajax({
+                            method: "POST",
+                            url: "/Cart/AddItemCart",
+                            data: {
+                                id: id
+                            },
+                            dataType: 'html',
+                            success: function (response) {
+                                $.notify("Đã thêm sản phẩm vào giỏ hàng!", "success");
+                                $("#DivCart").html(response);
+                            }
+                        });
+                    }
+                    else {
+                        $.notify("Số lượng sản phẩm đã hết!", "warn");
+                    }
+                }
+            });
+        });
+        $('.btnEdit').on('click', function () {
+            var id = $(this).val();
+            $('#modalUpdate').modal('show');
+            $.ajax({
+                url: '/Product/GetDataQuesion',
+                data: {
+                    id: id
+                },
+                type: 'GET',
+                dataType: 'json',
+                success: function (response) {
+                    if (response.status == true) {
+                        $('#ID').val(response.ID);
+                        $('#Question').val(response.Question);
+                        $('#ProductID').val(response.ProductID);
+                    }
+                    else {
+                        bootbox.alert(response.message);
+                    }
+                },
+                error: function (err) {
+                    console.log(err);
+                }
+            });
+        });
+        $('#btnSave').off('click').on('click', function () {
+            $('#modalUpdate').modal('hide');
+        });
+    });
+</script>
+<!--banner-->
+<div class="banner" hidden="hidden">
+    <div class="container">
+        <div class="banner-text">
+            <div class="col-sm-5 banner-left wow fadeInLeft animated" data-wow-delay=".5s">
+                <h2>Chương Trình Ưu Đãi Đặc Biệt</h2>
+                <h3>Sắp diễn ra </h3>
+                <h4>Sẽ bắt đầu sau</h4>
+                <div class="count main-row">
+                    <ul id="example">
+                        <li><span class="hours">00</span><p class="hours_text">Hours</p></li>
+                        <li><span class="minutes">00</span><p class="minutes_text">Minutes</p></li>
+                        <li><span class="seconds">00</span><p class="seconds_text">Seconds</p></li>
+                    </ul>
+                    <div class="clearfix"> </div>
+                    <script type="text/javascript" src="~/Content/js/jquery.countdown.min.js"></script>
+                    <script type="text/javascript">
+                        $('#example').countdown({
+                            date: '10/12/2022 15:59:59',
+                            offset: -8,
+                            day: 'Day',
+                            days: 'Days'
+                        }, function () {
+                            //alert('Done!');
+                        });
+                    </script>
+                </div>
+            </div>
+            <div class="col-sm-7 banner-right wow fadeInRight animated" data-wow-delay=".5s">
+                <section class="slider grid">
+                    <div class="flexslider">
+                        <ul class="slides">
+                            <li>
+                                <h4>-30%</h4>
+                                <img src="~/Content/home/img/gallery/b1.png" alt="">
+                            </li>
+                            <li>
+                                <h4>-25%</h4>
+                                <img src="~/Content/home/img/gallery/b2.png" alt="">
+                            </li>
+                            <li>
+                                <h4>-32%</h4>
+                                <img src="~/Content/home/img/gallery/b3.png" alt="">
+                            </li>
+                        </ul>
+                    </div>
+                </section>
+                <!--FlexSlider-->
+                <script defer src="~/Content/js/jquery.flexslider.js"></script>
+                <script type="text/javascript">
+                    $(window).load(function () {
+                        $('.flexslider').flexslider({
+                            animation: "pagination",
+                            start: function (slider) {
+                                $('body').removeClass('loading');
+                            }
+                        });
+                    });
+                </script>
+                <!--End-slider-script-->
+            </div>
+            <div class="clearfix"> </div>
+        </div>
+    </div>
+</div>
+<!--//banner-->
+<!--breadcrumbs-->
+<div class="breadcrumbs">
+    <div class="container">
+        <ol class="breadcrumb breadcrumb1 animated wow slideInLeft" data-wow-delay=".5s">
+            <li><a href="index.html"><span class="glyphicon glyphicon-home" aria-hidden="true"></span>Trang Chủ</a></li>
+            <li class="active">Sản Phẩm</li>
+        </ol>
+    </div>
+</div>
+<!--//breadcrumbs-->
+<!--single-page-->
+<div class="single">
+    <div class="container">
+        <div class="single-info">
+            <div class="col-md-6 single-top wow fadeInLeft animated" data-wow-delay=".5s">
+                <div class="flexslider">
+                    <div class="thumb-image"> <img src="@Url.Content("~/Content/home/img/gallery/" + Model.AnhSP)" data-imagezoom="true" class="img-responsive" alt=""> </div>
+                </div>
+            </div>
+            <div class="col-md-6 single-top-left simpleCart_shelfItem wow fadeInRight animated" data-wow-delay=".5s">
+                <h3>@Model.TenSP</h3>
+                <div class="single-rating">
+                    <div class="rating">
+                        @for (int i = 1; i <= ViewBag.Rating; i++)
+                        {
+                            if (i <= ViewBag.Rating)
+                            {
+                                <span class="on">☆</span>
+                            }
+                            else
+                            {
+                                <span>☆</span>
+                            }
+                        }
+                    </div>
+                    @if (@ViewBag.Rating <= 0)
+                    {
+                        <p>Chưa có đánh giá</p>
+                    }
+                    <a href="#">Đánh giá sau khi mua hàng</a>
+                </div>
+                @*@if (Model.GiaKhuyenMai != 0)
+                {
+                    <p class="pric1"><del>@Model.GiaKhuyenMai.ToString("#,##")₫</del></p>
+                }*@
+                <h6 class="item_price">@Model.GiaSP.ToString("#,##")₫</h6>
+                <div class="clearfix"> </div>
+                <div class="quantity">
+                    <p class="qty"> Đã bán :</p> @Model.SoLanMua
+                </div>
+                <div class="btn_form">
+                    <a class="AddItemCart" data-id="@Model.MaSP" style="cursor:pointer">Thêm vào giỏ</a>
+                </div>
+            </div>
+            <div class="clearfix"> </div>
+        </div>
+        <!--collapse-tabs-->
+        <div class="collpse tabs">
+            <div class="panel-group collpse" id="accordion" role="tablist" aria-multiselectable="true">
+                <div class="panel panel-default wow fadeInUp animated" data-wow-delay=".5s">
+                    <div class="panel-heading" role="tab" id="headingOne">
+                        <h4 class="panel-title">
+                            <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                Mô tả
+                            </a>
+                        </h4>
+                    </div>
+                    <div id="collapseOne" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
+                        <div class="panel-body">
+                            @Model.MoTa
+                        </div>
+                    </div>
+                </div>
+                <div class="panel panel-default wow fadeInUp animated" data-wow-delay=".6s">
+                    <div class="panel-heading" role="tab" id="headingTwo">
+                        <h4 class="panel-title">
+                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                @if (ratings.Count() > 0)
+                                {
+                                    <span>Đánh Giá (@ratings.Count())</span> }
+                                else
+                                {
+                                    <span>Đánh Giá</span>}
+                            </a>
+                        </h4>
+                    </div>
+                    <div id="collapseTwo" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">
+                        <div class="panel-body">
+                            @if (ratings.Count() > 0)
+                            {
+                                foreach (var item in ratings)
+                                {
+                                    <label style="color:black">@item.TaiKhoans.HoTen</label>
+                                    <div class="rating" style="float:right">
+                                        @for (int i = 1; i <= item.Sao; i++)
+                                        {
+                                            if (i <= item.Sao)
+                                            {
+                                                <span class="on">☆</span>
+                                            }
+                                            else
+                                            {
+                                                <span>☆</span>
+                                            }
+                                        }
+                                    </div> <br />
+                                    <p style="background-color:lightgrey;color:black;">
+                                        @item.NoiDung
+                                    </p>
+                                    <hr />
+                                }
+                            }
+                            else
+                            {
+                                <p>Chưa có đánh giá</p>}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--//collapse -->
+        <!--related-products-->
+        <div class="related-products">
+            <div class="title-info wow fadeInUp animated" data-wow-delay=".5s">
+                <h3 class="title">Món Ăn<span> Cùng Loại</span></h3>
+            </div>
+            <div class="related-products-info">
+                @foreach (var item in products)
+                {
+                    if (counter == 1)
+                    {
+                        <div class="col-md-3 new-grid simpleCart_shelfItem wow flipInY animated" data-wow-delay=".5s">
+                            <div class="new-top">
+                                <a href="/san-pham/@item.MaSP"><img src="@Url.Content("~/Content/home/img/gallery/"+item.AnhSP)" style="height:250px;width:300px" class="img-responsive" alt="" /></a>
+                                <div class="new-text">
+                                    <ul>
+                                        <li>
+                                            <a class="AddItemCart" data-id="@Model.MaSP" style="cursor:pointer">Thêm vào giỏ</a>
+                                        </li>
+                                        <li><a href="/san-pham/@item.MaSP">Xem Chi Tiết </a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="new-bottom">
+                                <h5><a class="name" href="/san-pham/@item.MaSP" style="width: 200px;display: inline-block;white-space: nowrap;text-overflow: ellipsis;overflow: hidden;">@item.TenSP </a></h5>
+                                <div class="ofr">
+                                    @if (item.GiamGia > 0)
+                                    {
+                                        <p class="pric1"><del>@item.GiaKhuyenMai.ToString("#,##")₫</del></p><br />
+                                    }
+                                    <p><span class="item_price">@item.GiaSP.ToString("#,##")₫</span></p>
+                                </div>
+                            </div>
+                        </div> counter++;
+                    }
+                    else if (counter == 2)
+                    {
+                        <div class="col-md-3 new-grid simpleCart_shelfItem wow flipInY animated" data-wow-delay=".5s">
+                            <div class="new-top">
+                                <a href="/san-pham/@item.MaSP"><img src="@Url.Content("~/Content/home/img/gallery/"+item.AnhSP)" style="height:250px;width:300px" class="img-responsive" alt="" /></a>
+                                <div class="new-text">
+                                    <ul>
+                                        <li>
+                                            <a class="AddItemCart" data-id="@Model.MaSP" style="cursor:pointer">Thêm vào giỏ</a>
+                                        </li>
+                                        <li><a href="/san-pham/@item.MaSP">Xem Chi Tiết </a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="new-bottom">
+                                <h5><a class="name" href="/san-pham/@item.MaSP" style="width: 200px;display: inline-block;white-space: nowrap;text-overflow: ellipsis;overflow: hidden;">@item.TenSP </a></h5>
+                                <div class="ofr">
+                                    @if (item.GiamGia > 0)
+                                    {
+                                        <p class="pric1"><del>@item.GiaKhuyenMai.ToString("#,##")₫</del></p><br />
+                                    }
+                                    <p><span class="item_price">@item.GiaSP.ToString("#,##")₫</span></p>
+                                </div>
+                            </div>
+                        </div> counter++;
+                    }
+                    else if (counter == 3)
+                    {
+                        <div class="col-md-3 new-grid simpleCart_shelfItem wow flipInY animated" data-wow-delay=".5s">
+                            <div class="new-top">
+                                <a href="/san-pham/@item.MaSP"><img src="@Url.Content("~/Content/home/img/gallery/"+item.AnhSP)" style="height:250px;width:300px" class="img-responsive" alt="" /></a>
+                                <div class="new-text">
+                                    <ul>
+                                        <li>
+                                            <a class="AddItemCart" data-id="@Model.MaSP" style="cursor:pointer">Thêm vào giỏ</a>
+                                        </li>
+                                        <li><a href="/san-pham/@item.MaSP">Xem Chi Tiết </a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="new-bottom">
+                                <h5><a class="name" href="/san-pham/@item.MaSP" style="width: 200px;display: inline-block;white-space: nowrap;text-overflow: ellipsis;overflow: hidden;">@item.TenSP </a></h5>
+                                <div class="ofr">
+                                    @if (item.GiamGia > 0)
+                                    {
+                                        <p class="pric1"><del>@item.GiaKhuyenMai.ToString("#,##")₫</del></p><br />
+                                    }
+                                    <p><span class="item_price">@item.GiaSP.ToString("#,##")₫</span></p>
+                                </div>
+                            </div>
+                        </div> counter++;
+                    }
+                    else if (counter == 4)
+                    {
+                        <div class="col-md-3 new-grid simpleCart_shelfItem wow flipInY animated" data-wow-delay=".5s">
+                            <div class="new-top">
+                                <a href="/san-pham/@item.MaSP"><img src="@Url.Content("~/Content/home/img/gallery/"+item.AnhSP)" style="height:250px;width:300px" class="img-responsive" alt="" /></a>
+                                <div class="new-text">
+                                    <ul>
+                                        <li>
+                                            <a class="AddItemCart" data-id="@Model.MaSP" style="cursor:pointer">Thêm vào giỏ</a>
+                                        </li>
+                                        <li><a href="/san-pham/@item.MaSP">Xem Chi Tiết </a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="new-bottom">
+                                <h5><a class="name" href="/san-pham/@item.MaSP" style="width: 200px;display: inline-block;white-space: nowrap;text-overflow: ellipsis;overflow: hidden;">@item.TenSP </a></h5>
+                                <div class="ofr">
+                                    @if (item.GiamGia > 0)
+                                    {
+                                        <p class="pric1"><del>@item.GiaKhuyenMai.ToString("#,##")₫</del></p><br />
+                                    }
+                                    <p><span class="item_price">@item.GiaSP.ToString("#,##")₫</span></p>
+                                </div>
+                            </div>
+                        </div>break;
+
+
+                    }
+                }
+                <div class="clearfix"> </div>
+            </div>
+        </div>
+        <!--//related-products-->
+    </div>
+</div>
+<!--//single-page-->
+
+

@@ -1,0 +1,56 @@
+﻿@{
+    IEnumerable<QLBH.Fastfood.Models.LoaiSanPham> productCategories = ViewBag.ListProductCategory;
+}
+<div class="top-nav navbar navbar-default">
+    <!--header-three-->
+    <div class="container">
+        <nav class="navbar" role="navigation">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+            </div>
+            <!--navbar-header-->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav top-nav-info" style="font-size:15px">
+                    <li><a href="@Url.Action("Index","Home")" class="active">Trang Chủ</a></li>
+                    <li><a href="@Url.Action("NewProduct","Product")">Món Mới</a></li>
+                    <li class="dropdown grid">
+                        <a href="#" class="dropdown-toggle list1" data-toggle="dropdown">Danh Mục<b class="caret"></b></a>
+                        <ul class="dropdown-menu multi-column multi-column2">
+                            <div class="row">
+                             
+                                        <ul class="multi-column-dropdown">
+                                            @foreach (var item in productCategories)
+                                            {
+                                                <li>
+                                                    <a class="list" href=@Url.Action("ProductCategory", "Product", new { ID = item.MaLoaiSP }) style="font-size:17px">@item.TenLoaiSP</a>
+                                                </li>
+                                            }
+                                        </ul>
+                            </div>
+                        </ul>
+                    </li>           
+                    <li><a href="@Url.Action("About","Home")">Giới Thiệu</a></li>
+                </ul>
+                <div class="clearfix"> </div>
+                <!--//navbar-collapse-->
+            </div>
+            <header class="cd-main-header">
+                <ul class="cd-header-buttons">
+                    <li><a class="cd-search-trigger" href="#cd-search"> <span></span></a></li>
+                </ul> <!-- cd-header-buttons -->
+            </header>
+            <!--//navbar-header-->
+        </nav>
+        <div id="cd-search" class="cd-search">
+            <form action="/Product/Search" method="get">
+                <input type="search" placeholder="Tìm kiếm..." name="keyword" required>
+            </form>
+        </div>
+    </div>
+</div>
+

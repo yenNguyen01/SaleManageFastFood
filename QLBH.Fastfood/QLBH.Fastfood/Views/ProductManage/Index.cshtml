@@ -1,0 +1,479 @@
+﻿@model PagedList.IPagedList<QLBH.Fastfood.Models.SanPham>
+@using PagedList.Mvc;
+@{
+    ViewBag.Title = "Danh sách sản phẩm";
+    Layout = "~/Views/Layout/AdminLayout.cshtml";
+}
+
+<link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+<script src="//code.jquery.com/jquery-1.10.2.js"></script>
+<script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+<script src="~/Scripts/bootbox.js"></script>
+@if (TempData["create"] != null)
+{
+    <script>
+        swal({
+            title: "Thông báo",
+            text: "Thêm sản phẩm thành công!",
+            icon: "success",
+            timer: 1500
+        });
+    </script>
+    @(TempData["create"] = null)}
+@if (TempData["edit"] != null)
+{
+    <script>
+        swal({
+            title: "Thông báo",
+            text: "Cập nhật sản phẩm thành công!",
+            icon: "success",
+            timer: 1500
+        });
+    </script>
+    @(TempData["edit"] = null)}
+<script>
+    $(document).ready(function () {
+        $(".ckb").change(function () {
+            var id = $(this).prop("value");
+            if ($(this).is(':checked')) {
+                $.ajax({
+                    url: '/ProductManage/Active',
+                    data: {
+                        id: id
+                    }
+                });
+                swal({
+                    title: "Thông báo",
+                    text: "Kích hoạt sản phẩm thành công!",
+                    icon: "success",
+                    timer: 1500
+                });
+            }
+            else {
+                $.ajax({
+                    url: '/ProductManage/Block',
+                    data: {
+                        id: id
+                    }
+                });
+                swal({
+                    title: "Thông báo",
+                    text: "Khóa sản phẩm thành công!",
+                    icon: "success",
+                    timer: 1500
+                });
+            }
+        });
+        $('#btnAddNew').off('click').on('click', function () {
+            $('#modalAdd').modal('show');
+        });
+        $('.btnEdit').off('click').on('click', function () {
+            var id = $(this).val();
+            $('#modalUpdate').modal('show');
+            $.ajax({
+                url: '/ProductManage/Edit',
+                data: {
+                    id: id
+                },
+                type: 'GET',
+                dataType: 'json',
+                success: function (response) {
+                    if (response.status == true) {
+                        $('#MaSPedit').val(response.MaSP);
+                        $('#TenSPedit').val(response.TenSP);
+                        $('#MaLoaiSP').val(response.MaLoaiSP);
+                        $('#AnhSPedit').val(response.AnhSP);
+                        $('#AnhSPedit').attr('src', "../Content/home/img/gallery/" + response.AnhSP);
+                        $('#GiaSPedit').val(response.GiaSP);
+                        $('#GiamGiaedit').val(response.GiamGia);
+                        $('#MoTaedit').val(response.MoTa);
+                        $('#HoatDongedit').prop("checked", response.HoatDong);
+                        $('#SoLanMuaedit').val(response.SoLanMua);
+
+                    }
+                    else {
+                        bootbox.alert(response.message);
+                    }
+                },
+                error: function (err) {
+                    console.log(err);
+                }
+            });
+        });
+        $('.btnDetail').off('click').on('click', function () {
+            var id = $(this).val();
+            $('#modalDetail').modal('show');
+            $.ajax({
+                url: '/ProductManage/Edit',
+                data: {
+                    id: id
+                },
+                type: 'GET',
+                dataType: 'json',
+                success: function (response) {
+                    if (response.status == true) {
+                        $('#MaSPDetail').val(response.MaSP);
+                        $('#TenSPDetail').val(response.TenSP);
+                        $('#CategoryIDEdit').val(response.MaLoaiSP);
+                        $('#AnhSPDetail').val(response.AnhSP);
+                        $('#AnhSPDetail').attr('src', "/Content/home/img/gallery/" + response.AnhSP);
+                        $('#GiaSPDetail').val(response.GiaSP);
+                        $('#GiamGiaDetail').val(response.GiamGia);
+                        $('#MoTaDetail').val(response.MoTa);
+                        $('#SoLuongDetail').val(response.SoLuong);
+                        $('#HoatDongDetail').prop("checked", response.HoatDong);
+                        $('#SoLanMuaDetail').val(response.SoLanMua);
+                    }
+                    else {
+                        bootbox.alert(response.message);
+                    }
+                },
+                error: function (err) {
+                    console.log(err);
+                }
+            });
+        });
+        function checkNameAdd() {
+            var name = $("#TenSP").val();
+            var status = false;
+            $.ajax({
+                url: '/ProductManage/CheckName',
+                data: {
+                    name: name
+                },
+                type: 'POST',
+                dataType: 'json',
+                success: function (response) {
+                    if (response.status == true) {
+                        status = true;
+                    }
+                },
+                async: false
+            });
+            if (status) {
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+        $(document).on('submit', '#formAdd', function (e) {
+            if (checkNameAdd() == false) {
+                swal({
+                    title: "Thông báo",
+                    text: "Tên sản phẩm đã tồn tại!",
+                    icon: "error"
+                });
+                return false;
+            }
+        });
+        function checkNameEdit() {
+            var name = $("#TenSP").val();
+            var id = $("#MaSP").val();
+            var status = false;
+            $.ajax({
+                url: '/ProductManage/CheckName',
+                data: {
+                    name: name,
+                    id: id
+                },
+                type: 'POST',
+                dataType: 'json',
+                success: function (response) {
+                    if (response.status == true) {
+                        status = true;
+                    }
+                },
+                async: false
+            });
+            if (status) {
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+        $(document).on('submit', '#formEdit', function (e) {
+            if (checkNameEdit() == false) {
+                swal({
+                    title: "Thông báo",
+                    text: "Tên sản phẩm đã tồn tại!",
+                    icon: "error"
+                });
+                return false;
+            }
+        });
+        $("#keyword").autocomplete({
+            source: function (request, response) {
+                $.ajax({
+                    url: "/ProductManage/ListName",
+                    type: "POST",
+                    dataType: "json",
+                    data: { Prefix: request.term },
+                    success: function (data) {
+                        response($.map(data, function (item) {
+                            return { label: item, value: item };
+                        }))
+                    }
+                })
+            },
+            messages: {
+                noResults: "", results: ""
+            }
+        });
+    });
+</script>
+<ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="@Url.Action("Index","Admin")">Trang chủ</a> <i class="fa fa-angle-right"></i></li>
+    <li class="breadcrumb-item"><a href="@Url.Action("Index","ProductManage")">Sản phẩm</a> <i class="fa fa-angle-right"></i></li>
+</ol>
+<div class="agile-grids">
+    <div class="agile-tables">
+        <div class="w3l-table-info">
+            <ul class="bt-list">
+                <li><a href="#" class="hvr-icon-float-away col-24" style="background-color:green" id="btnAddNew">Thêm mới</a></li>
+            </ul>
+            <hr />
+            <div class="w3-search-box">
+                <form action="@Url.Action("Index","ProductManage")" method="get">
+                    <input type="text" placeholder="Tìm kiếm..." name="keyword" id="keyword" required>
+                    <input type="submit" value="">
+                </form>
+                @if (ViewBag.KeyWord != null)
+                {
+                    <h5>Tìm kiếm với từ khóa "@ViewBag.KeyWord"</h5>}
+            </div><!--//end-search-box-->
+            <p>@ViewBag.message</p>
+            <div class="clearfix"> </div>
+            <hr />
+            <h2>Danh sách sản phẩm</h2>
+            <table id="table">
+                <thead>
+                    <tr>
+                        <th>
+                            Tên sản phẩm
+                        </th>
+                        <th>
+                            Hình ảnh
+                        </th>
+                        <th>
+                            Kích hoạt
+                        </th>
+                        <th>
+                            Ngày cập nhật
+                        </th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        @Html.Hidden(item.MaSP.ToString())
+                        <tr>
+                            <td style="color:brown">
+                                <b>@item.TenSP</b>
+                            </td>
+                            <td>
+                                <img src="@Url.Content("~/Content/home/img/gallery/" + item.AnhSP)" width="100" height="100" />
+                            </td>
+                            <td>
+                                @if (item.HoatDong == true)
+                                {
+                                    <label class="switch block">
+                                        <input type="checkbox" checked class="ckb" value="@item.MaSP">
+                                        <span class="slider round"></span>
+                                    </label> }
+                                else
+                                {
+                                    <label class="switch active">
+                                        <input type="checkbox" class="ckb" value="@item.MaSP">
+                                        <span class="slider round"></span>
+                                    </label>}
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.NgayTao)
+                            </td>
+                            <td>
+                                <button class="btn btn-link btnDetail" value="@item.MaSP">Chi tiết</button>
+                                <button class="btn btn-primary btnEdit" value="@item.MaSP">Sửa</button>
+                            </td>
+                           
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            <br />
+            <div id='Paging' style="text-align: center">
+                @Html.PagedListPager(Model, page => Url.Action("Index", new { page, keyword = ViewBag.KeyWord }))
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modalAdd" role="dialog">
+    <div class="modal-dialog">
+        <!--Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Thêm mới</h4>
+            </div>
+            <div class="modal-body">
+                @using (Html.BeginForm("Create", "ProductManage", FormMethod.Post, new { @enctype = "multipart/form-data", id = "formAdd" }))
+                {
+                    <div class="form-group">
+                        <label for="Name">Tên sản phẩm:</label>
+                        <input type="text" class="form-control" name="TenSP" id="TenSP" pattern=".{,50}" required title="Tên sản phẩm tối đa 50 ký tự!">
+                        <input type="text" name="page" value="@ViewBag.Page" hidden="hidden" />
+                        <input type="hidden" id="hidID" value="0" />
+                    </div>
+                    <div class="form-group">
+                        <label>Danh mục:</label>
+                        @Html.DropDownList("MaLoaiSP", null, new { @class = "form-control" })
+                    </div>
+                    <div class="form-group">
+                        <label>Hình ảnh:</label>
+                        <input type="file" name="AnhSP" id="AnhSP" required accept="image/png, image/jpg, image/jpeg" />
+                    </div>
+                    <div class="form-group">
+                        <label>Giá bán:</label>
+                        <input type="number" class="form-control" name="GiaSP" id="GiaSP" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Số lượng:</label>
+                        <input type="number" class="form-control" name="SoLuong" id="SoLuong" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Khuyến mãi(%):</label>
+                        <input type="number" class="form-control" name="GiamGia" id="GiamGia" value="0" min="0" max="99">
+                    </div>
+                    <div class="form-group">
+                        <label>Mô tả:</label>
+                        <textarea class="form-control" name="MoTa" id="MoTa" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Kích hoạt:</label>
+                        <input class="form-control" data-val="true" id="HoatDong" name="HoatDong" type="checkbox" value="true" checked>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary" id="btnSave">Lưu</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Hủy</button>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modalUpdate" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Chỉnh sửa</h4>
+            </div>
+            <div class="modal-body">
+                @using (Html.BeginForm("Edit", "ProductManage", FormMethod.Post, new { @enctype = "multipart/form-data", id = "formEdit" }))
+                {
+                    <input type="text" name="MaSP" id="MaSP" hidden />
+                    <input type="text" name="SoLanMua" id="SoLanMua" hidden />
+                    <div class="form-group">
+                        <label for="Name">Tên sản phẩm:</label>
+                        <input type="text" class="form-control" name="TenSP" id="TenSPedit" pattern=".{,50}" required title="Tên sản phẩm tối đa 50 ký tự!">
+                        <input type="text" name="page" value="@ViewBag.Page" hidden="hidden" />
+                        <input type="hidden" id="hidID" value="0" />
+                    </div>
+                    <div class="form-group">
+                        <label>Danh mục:</label>
+                        @Html.DropDownList("MaLoaiSP", null, new { @class = "form-control" })
+                    </div>
+                    <div class="form-group">
+                        <label>Hình ảnh:</label>
+                        <input type="file" name="AnhSP" id="AnhSPedit" required accept="image/png, image/jpg, image/jpeg" />
+                    </div>
+                    <div class="form-group">
+                        <label>Giá bán:</label>
+                        <input type="number" class="form-control" name="GiaSP" id="GiaSPedit" min="0" required>
+
+                    </div>
+                    <div class="form-group">
+                        <label>Số lượng:</label>
+                        <input type="number" class="form-control" name="SoLuong" id="SoLuongedit" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Khuyến mãi(%):</label>
+                        <input type="number" class="form-control" name="GiamGia" id="GiamGiaedit" value="0" min="0" max="99">
+                    </div>
+                    <div class="form-group">
+                        <label>Mô tả:</label>
+                        <textarea class="form-control" name="MoTa" id="MoTaedit" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Kích hoạt:</label>
+                        <input class="form-control" data-val="true" id="HoatDongedit" name="HoatDong" type="checkbox" value="true" checked>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary" id="btnSave">Lưu</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Hủy</button>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+        <div class="modal fade" id="modalDetail" role="dialog">
+            <div class="modal-dialog">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">Xem chi tiết</h4>
+                    </div>
+                    <div class="modal-body">
+                        <input type="text" name="page" value="@ViewBag.Page" hidden="hidden" />
+                        <div class="form-group">
+                            <label for="Name">Tên sản phẩm:</label>
+                            <input type="text" class="form-control" name="TenSP" id="TenSPDetail" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="Name">Số lượng:</label>
+                            <input type="text" class="form-control" name="SoLuong" id="SoLuongDetail" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="Name">Lượt mua:</label>
+                            <input type="text" class="form-control" name="SoLanMua" id="SoLanMuaDetail" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label>Danh mục:</label>
+                            @Html.DropDownList("CategoryIDEdit", null, new { @class = "form-control", @readonly = "readonly" })
+                        </div>
+                        <div class="form-group">
+                            <label>Hình ảnh:</label>
+                            <img name="ImageUpload" id="AnhSPDetail" style="height:200px;width:200px" />
+                        </div>
+                        <div class="form-group">
+                            <label>Giá bán:</label>
+                            <input type="number" class="form-control" name="GiaSP" id="GiaSPDetail" min="0" required readonly>
+                        </div>
+                        <div class="form-group">
+                            <label>Khuyến mãi(%):</label>
+                            <input type="number" class="form-control" name="GiamGia" id="GiamGiaDetail" min="0" max="99" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label>Mô tả:</label>
+                            <textarea class="form-control" name="MoTa" id="MoTaDetail" required readonly></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Kích hoạt:</label>
+                            <input class="form-control" data-val="true" id="HoatDongDetail" name="HoatDong" type="checkbox" value="true" readonly>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">OK</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+

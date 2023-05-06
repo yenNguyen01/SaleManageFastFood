@@ -1,0 +1,39 @@
+﻿@model QLBH.Fastfood.Models.SanPham
+<div class="new-top">
+    <a href="@Url.Action("Details","Product",new { ID=Model.MaSP})"><img src="@Url.Content("~/Content/home/img/gallery/"+Model.AnhSP)" style="height:250px;width:300px" class="img-responsive" alt="item" /></a>
+    <div class="new-text">
+        <ul>
+            <li><a href="@Url.Action("Details","Product",new { ID=Model.MaSP})">Xem Chi Tiết </a></li>
+            <li><a class="AddItemCart" data-id="@Model.MaSP" style="cursor:pointer">Thêm vào giỏ</a></li>
+        </ul>
+    </div>
+</div>
+<div class="new-bottom">
+    <h5><a class="name" href="/san-pham/@Model.MaSP" style="width: 250px;display: inline-block;white-space: nowrap;text-overflow: ellipsis;overflow: hidden;">@Model.TenSP </a></h5>
+    <div class="rating" style="float:right">
+        @for (int i = 1; i <= ViewBag.Rating; i++)
+        {
+            if (i <= ViewBag.Rating)
+            {
+                <span class="on">☆</span>
+            }
+            else
+            {
+                <span>☆</span>
+            }
+        }
+    </div>
+    <div class="ofr">
+        @if (Model.GiamGia > 0)
+        {
+            <p><span class="item_price">@Model.GiaKhuyenMai.ToString("#,##")₫ (-@Model.GiamGia%)</span></p><br />
+            <p class="pric1"><del>@Model.GiaSP.ToString("#,##")₫</del></p><br />
+        }
+        else
+        {
+            <p><span class="item_price">@Model.GiaSP.ToString("#,##")₫</span></p><br />
+            <p class="pric1">.</p><br />
+        }
+    </div>
+</div>
+
